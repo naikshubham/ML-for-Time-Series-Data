@@ -250,6 +250,54 @@ for spec in spectrograms:
 X = np.column_stack([means, stds, maxs, tempo_mean, tempo_max, tempo_std, bandwidths_all, centroids_all])
 ```
 
+### Predicting data over time
+- Now focus on regression. Regression has several features and caveats that are unique to timeseries data.
+
+#### Correlation and Regression
+- Both regression and correlation reflect the extent to which the values of two variables have a consistent relationship(either they both go down or up together, or they have an inverse relationship).
+- However regression results in a "model" of the data, while correlation is just a single statistics that describes the data. Regression models have more information about the data, while correlation is easier to calculate and interpret.
+
+#### Correlation between variables often changes over time
+- When running regression models with timeseries data, it's important to visualize how the data changes over time. We can either do this by plotting the whole timeseries at once,or by directly comparing two segments of time.
+
+#### Visualizing relationships between timeseries
+
+```python
+fig, axs = plt.subplots(1, 2)
+
+# Make a line plot for each timeseries
+axs[0].plot(x, c='k', lw=3, alpha=.2)
+axs[0].plot(y)
+axs[0].set(xlabel='time', title='X values = time')
+
+# encode time as color in a scatterplot
+axs[1].scatter(x_long, y_long, c=np.arange(len(x_long)), cmap='viridis')
+axs[1].set(xlabel='x', ylabel='y', title='Color = time')
+```
+
+#### Regression models with scikit-learn
+
+```python
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X, y)
+model.predict(X)
+```
+
+#### Visualize predictions with scikit-learn
+- We can visualize the predictions from several different models fit on the same data. We'll use Ridge Regression, which has parameter called "alpha" that causes coefficients to be smoother and smaller, and is useful if we have noisy or correlated variables.
+- Loop through a few values of alpha, initializing a model with each one and fitting it on the training data. Plot model predictions on the test data.
+
+```python
+alphas=[.1, 1e2, 1e3]
+ax.plot(y_test, color='k', alpha=.3, lw=3)
+for ii, alpha in enumerate(alphas):
+    y_predicted = Ridge(alpha=alpha).fit(X_train, y_train).predict(X_test)
+    ax.plot(y_predicted, c=cmap(ii / len(alphas))
+ax.legend(['True Values', 'Model 1', 'Model 2', 'Model 3'])
+ax.set(xlabel="Time")
+```
+
 
 
 
