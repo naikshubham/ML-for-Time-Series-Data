@@ -298,10 +298,32 @@ ax.legend(['True Values', 'Model 1', 'Model 2', 'Model 3'])
 ax.set(xlabel="Time")
 ```
 
+### Advanced time series predictions
 
+#### Cleaning and improving our data
+- Real world data is always messy and requires preparing and cleaning the data before fitting models. In timeseries, messsy data often happens due to failing sensors or human error in logging the data.
+- **Note that it is not always clear whether patterns in the data are "aberrations" or not. We should always investigate to understand the source of strange patterns in the data.**
 
+#### Interpolation : using time to fill in missing data
+- Fill in the missing data using other datapoints we do have. We can use a technique called interpolation, which uses the values on either end of a missing window of time to infer what's in-between.
 
+#### Interpolation in Pandas
 
+```python
+# return a boolean that notes where missing values are
+missing = prices.isna()
+
+# interpolate linearly within missing windows
+prices_interp = prices.interpolate('linear')
+
+# plot the interpolation data in read and the data with missing values in black
+ax = prices_interp.plot(c='r')
+prices.plot(c='k', ax=ax, lw=2)
+```
+
+#### Using a rolling window to transform data
+- Another common technique to clean data is transforming it so that it is more well behaved. To do this we use the rolling window technique.
+- Using a rolling window, we calculate each timepoint's percent change over the mean of a window of previous timepoints. This standardizes the variance of our data and reduces long-term drift.
 
 
 
