@@ -406,15 +406,36 @@ prices_outlier_centered.plot(ax=axs[0])
 prices_outlier_fixed.plot(ax=axs[1])
 ```
 
+### Creating features over time
+- Specific features that are useful in time series analysis
 
+#### Extracting features with windows
+- We can use rolling window to extract features as they change over time.
 
+#### Using .aggregate for feature extraction
+- In pandas the `.aggregate` method can be used to calculate many features of a window at once. By passing a list of functions to the method, each function will be called on the window, and collected in the output.
+- We can extract many different kind of features this way. Always plot the features we've extracted over time, as this can give. This can give us a clue for how they behave and help us spot noisy data and outliers.
 
+```python
+# calculate the rolling window then extract two features
+feats = prices.rolling(20).aggregate([np.std, np.max]).dropna()
+```
 
+#### Using partial() in Python
+- A useful tool when using the `.aggregate` method is the partial function. This is built-in to python, lets us create a new function from an old one with some of the parameters pre-configured.
+- The first argument is the function we want to modify, and subsequent key-value pairs will be pre-set in the output function. After this, we no longer need to configure those values when we call the new function.
 
+```python
+# if we just take the mean it returns a single value
+a = np.array([[0,1,2], [0,1,2], [0,1,2]])
+print(np.mean(a))
 
+# we can use the partial function to initialize np.mean with an axis parameter
+from functools import partial
+mean_over_first_axis = partial(np.mean, axis=0) # creates mean function that always operates on the first axis
 
-
-
+print(mean_over_first_axis(a))
+```
 
 
 
