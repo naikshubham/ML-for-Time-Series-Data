@@ -373,7 +373,7 @@ for data, ax in zip([prices, prices_perc_change], axs):
 ```
 
 <p align="center">
-  <img src="data/outliers.JPG" width="350" title="Outliers">
+  <img src="../data/outliers.JPG" width="350" title="Outliers">
 </p>
 
 - Any datapoints outside these bounds could be an outlier. **Note that the datapoints deemed an outlier depend on the transformation of the data. On the right we see a few outlier datapoints that were not outliers in the raw data.**
@@ -436,6 +436,7 @@ mean_over_first_axis = partial(np.mean, axis=0) # creates mean function that alw
 
 print(mean_over_first_axis(a))
 ```
+
 
 
 
