@@ -325,6 +325,96 @@ prices.plot(c='k', ax=ax, lw=2)
 - Another common technique to clean data is transforming it so that it is more well behaved. To do this we use the rolling window technique.
 - Using a rolling window, we calculate each timepoint's percent change over the mean of a window of previous timepoints. This standardizes the variance of our data and reduces long-term drift.
 
+#### Transforming to percent change with Pandas
+
+```python
+def percent_change(values):
+    """Calculate the % change between the last value and the mean of previous values"""
+    # separate the last value and all prev values into variables
+    previous_values = values[:-1]
+    last_value = values[-1]
+    
+    # calculate the % diff between the last val and the mean of earlier values
+    percent_change = (last_value - np.mean(previous_values)) / np.mean(previous_values)
+    return precent_change
+```
+
+- Applying this to the data using the `.aggregate` method, passing our function as an input. Then the data is roughly centered to zero, and periods of high and low changes are easier to spot.
+
+```python
+# plot the raw data
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+ax = prices.plot(ax=axs[0])
+
+# calculate % change and plot
+ax = prices.rolling(window=20).aggregate(percent_change).plot(ax=axs[1])
+ax.legend_.set_visible(False)
+```
+
+#### Finding outliers in our data
+- We will use this transformation to detect outliers. Outliers are datapoints that are significantly statistically different from the dataset.
+- A common definition is any datapoint that is more than 3 standard deviations away from the mean of the dataset.
+
+#### Plotting a threshold on data : Visualize outliers
+- Calculate the mean and std of each dataset, then plot outlier "thresholds"(3 * sd from mean) on the raw and transformed data.
+
+```python
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+
+for data, ax in zip([prices, prices_perc_change], axs):
+    # calc mean/std for the data
+    this_mean = data.mean()
+    this_std = data.std()
+    
+    # Plot the data, with a window that is 3 stds around the mean
+    data.plot(ax=ax)
+    ax.axhline(this_mean + this_std * 3, ls='--', c='r')
+    ax.axhline(this_mean - this_std * 3, ls='--', c='r')
+```
+
+<p align="center">
+  <img src="data/outliers.JPG" width="350" title="Outliers">
+</p>
+
+- Any datapoints outside these bounds could be an outlier. **Note that the datapoints deemed an outlier depend on the transformation of the data. On the right we see a few outlier datapoints that were not outliers in the raw data.**
+
+#### Replacing outliers using the threshold
+- Replace outliers with the median of the remaining values. We first center the data by subtracting its mean, and calculate the standard dev. Finally, we calculat e the abs value of each datapoint, and mark any that lie outside of 3 std from the mean.
+- We then replace these using the nanmedian function, which calculates the median without being hindered by missing values.
+
+```python
+# center the data so the mean is 0
+prices_outlier_centered = prices_outlier_perc - prices_outlier_perc.mean()
+
+# calc standard dev
+std = prices_outlier_perc.std()
+
+# use the abs val of each data point to make it easier to find outliers
+outliers = np.abs(prices_outlier_centered) > (std * 3)
+
+# Repalce outliers with the median value
+# We'll use np.nanmean since there may be nans around the outliers
+prices_outlier_fixed = prices_outlier_centered.copy()
+prices_outlier_fixed[outliers] = np.nanmedian(prices_outlier_fixed)
+```
+
+#### Visualize the results
+
+```python
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+prices_outlier_centered.plot(ax=axs[0])
+prices_outlier_fixed.plot(ax=axs[1])
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
